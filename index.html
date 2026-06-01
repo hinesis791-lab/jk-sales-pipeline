@@ -79,6 +79,9 @@ body { font-family: 'Noto Sans KR', 'Malgun Gothic', sans-serif; background: var
 .content-actions { display: flex; gap: 8px; }
 .btn-clear { background: #fff0f0; color: var(--red); border: 1px solid #fecaca; padding: 5px 12px; border-radius: 6px; cursor: pointer; font-family: inherit; font-size: 0.75rem; }
 .btn-clear:hover { background: #ffe4e4; }
+.btn-restore { background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; padding: 5px 12px; border-radius: 6px; cursor: pointer; font-family: inherit; font-size: 0.75rem; display:none; }
+.btn-restore:hover { background: #dcfce7; }
+.btn-restore.visible { display: inline-block; }
 
 .member-stage-section { padding: 14px 20px 12px; background: #f8faff; border-bottom: 2px solid var(--border); }
 .member-stage-section .section-label { margin-bottom: 8px; }
@@ -421,6 +424,7 @@ function showMember(name) {
   currentFilter = '';
   renderNav();
   renderMemberContent(name);
+  checkBackup(name);
 }
 
 function renderMemberContent(name) {
@@ -445,6 +449,7 @@ function renderMemberContent(name) {
         </div>
       </div>
       <div class="content-actions">
+        <button class="btn-restore" id="btnRestore" onclick="restoreMember('${name}')">↩ 복구하기</button>
         <button class="btn-clear" onclick="clearMember('${name}')">초기화</button>
       </div>
     </div>
@@ -594,11 +599,46 @@ function applyVisibility() {
 }
 
 function clearMember(name) {
-  if (!confirm(`${name} 님의 모든 데이터를 초기화하시겠습니까?`)) return;
+  if (!confirm(`${name} 님의 모든 데이터를 초기화하시겠습니까?\n\n초기화 후에도 '복구하기' 버튼으로 되돌릴 수 있습니다.`)) return;
+  // 초기화 전 Firebase에 백업 저장
+  const snapshot = JSON.parse(JSON.stringify(cache[name] || {}));
+  db.ref(`backups/${name}`).set({
+    data: snapshot,
+    ts: new Date().toISOString()
+  });
   cache[name] = {};
   db.ref(`pipeline/${name}`).remove();
   showMember(name); renderStageCards(); renderNav();
-  toast(`${name} 님 데이터를 초기화했습니다.`);
+  // 복구 버튼 표시
+  const btn = document.getElementById('btnRestore');
+  if (btn) btn.classList.add('visible');
+  toast(`초기화 완료. '복구하기' 버튼으로 되돌릴 수 있습니다.`);
+}
+
+function restoreMember(name) {
+  db.ref(`backups/${name}`).once('value', snap => {
+    const backup = snap.val();
+    if (!backup || !backup.data || Object.keys(backup.data).length === 0) {
+      toast('복구할 백업 데이터가 없습니다.'); return;
+    }
+    const tsStr = new Date(backup.ts).toLocaleString('ko-KR', {
+      month:'long', day:'numeric', hour:'2-digit', minute:'2-digit'
+    });
+    if (!confirm(`${tsStr}에 초기화되기 전 데이터로 복구하시겠습니까?`)) return;
+    cache[name] = backup.data;
+    db.ref(`pipeline/${name}`).set(backup.data);
+    // 복구 후 백업 삭제 (중복 복구 방지)
+    db.ref(`backups/${name}`).remove();
+    showMember(name); renderStageCards(); renderNav();
+    toast(`${name} 님 데이터를 복구했습니다.`);
+  });
+}
+
+function checkBackup(name) {
+  db.ref(`backups/${name}`).once('value', snap => {
+    const btn = document.getElementById('btnRestore');
+    if (btn && snap.exists()) btn.classList.add('visible');
+  });
 }
 
 function exportExcel() {
