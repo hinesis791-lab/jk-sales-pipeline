@@ -7,10 +7,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root {
-  --primary: #1a1a2e;
   --accent: #4361ee;
   --green: #2dc653;
-  --gray: #8d99ae;
   --orange: #f8961e;
   --red: #ef233c;
   --bg: #f0f2f5;
@@ -21,71 +19,32 @@
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body { font-family: 'Noto Sans KR', 'Malgun Gothic', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
 
-/* ── Header ── */
 .header {
   background: linear-gradient(135deg, #1a1a2e 0%, #0f3460 100%);
-  color: white;
-  padding: 16px 28px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  position: sticky;
-  top: 0;
-  z-index: 200;
+  color: white; padding: 16px 28px;
+  display: flex; justify-content: space-between; align-items: center;
+  position: sticky; top: 0; z-index: 200;
   box-shadow: 0 2px 12px rgba(0,0,0,0.35);
 }
-.header-left h1 { font-size: 1.15rem; font-weight: 700; letter-spacing: -0.3px; }
-.header-left p { font-size: 0.75rem; opacity: 0.6; margin-top: 2px; }
+.header-left h1 { font-size: 1.15rem; font-weight: 700; }
+.header-left p { font-size: 0.73rem; opacity: 0.6; margin-top: 2px; }
 .header-right { display: flex; align-items: center; gap: 14px; }
 .header-date { font-size: 0.8rem; opacity: 0.75; }
-.btn-export, .btn-reset-all {
-  border: 1px solid rgba(255,255,255,0.35);
-  background: rgba(255,255,255,0.12);
-  color: white;
-  padding: 6px 14px;
-  border-radius: 6px;
-  font-size: 0.78rem;
-  font-family: inherit;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-.btn-export:hover, .btn-reset-all:hover { background: rgba(255,255,255,0.22); }
-.btn-reset-all { border-color: rgba(239,35,60,0.5); background: rgba(239,35,60,0.15); }
+.conn-status { font-size: 0.73rem; font-weight: 600; padding: 3px 10px; border-radius: 12px; background: rgba(255,255,255,0.12); transition: color 0.3s; }
+.btn-export { border: 1px solid rgba(255,255,255,0.35); background: rgba(255,255,255,0.12); color: white; padding: 6px 14px; border-radius: 6px; font-size: 0.78rem; font-family: inherit; cursor: pointer; transition: background 0.2s; }
+.btn-export:hover { background: rgba(255,255,255,0.22); }
 
-/* ── Main wrap ── */
 .main { padding: 18px 24px; max-width: 1700px; margin: 0 auto; }
+.section-label { font-size: 0.72rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
 
-/* ── Pipeline cards ── */
-.section-label {
-  font-size: 0.72rem;
-  font-weight: 700;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  margin-bottom: 10px;
-}
-.stage-grid {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 12px;
-  margin-bottom: 20px;
-}
-.stage-card {
-  background: white;
-  border-radius: 10px;
-  padding: 14px 16px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.07);
-  border-top: 3px solid;
-  cursor: default;
-  transition: transform 0.15s, box-shadow 0.15s;
-}
+.stage-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 20px; }
+.stage-card { background: white; border-radius: 10px; padding: 14px 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.07); border-top: 3px solid; transition: transform 0.15s, box-shadow 0.15s; }
 .stage-card:hover { transform: translateY(-2px); box-shadow: 0 4px 14px rgba(0,0,0,0.1); }
 .stage-card[data-s="견적중"]  { border-top-color: var(--accent); }
 .stage-card[data-s="빌링완료"] { border-top-color: var(--green); }
-.stage-card[data-s="채용없음"] { border-top-color: var(--gray); }
+.stage-card[data-s="채용없음"] { border-top-color: #8d99ae; }
 .stage-card[data-s="보류"]    { border-top-color: var(--orange); }
 .stage-card[data-s="이탈"]    { border-top-color: var(--red); }
-
 .sc-label { font-size: 0.78rem; font-weight: 600; margin-bottom: 8px; }
 .sc-count { font-size: 2rem; font-weight: 700; line-height: 1; }
 .sc-count span { font-size: 0.9rem; font-weight: 400; color: var(--text-muted); }
@@ -93,22 +52,10 @@ body { font-family: 'Noto Sans KR', 'Malgun Gothic', sans-serif; background: var
 .sc-bar { height: 4px; background: var(--border); border-radius: 4px; margin-top: 8px; overflow: hidden; }
 .sc-bar-fill { height: 100%; border-radius: 4px; transition: width 0.4s; }
 
-/* ── Two-column layout ── */
 .layout { display: grid; grid-template-columns: 250px 1fr; gap: 18px; }
-
-/* ── Sidebar ── */
 .sidebar { background: white; border-radius: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.07); overflow: hidden; height: fit-content; }
 .sidebar-header { background: linear-gradient(135deg, #1a1a2e 0%, #0f3460 100%); color: white; padding: 12px 16px; font-size: 0.82rem; font-weight: 600; }
-.nav-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 11px 16px;
-  cursor: pointer;
-  border-bottom: 1px solid var(--border);
-  transition: background 0.12s;
-  position: relative;
-}
+.nav-item { display: flex; align-items: center; gap: 10px; padding: 11px 16px; cursor: pointer; border-bottom: 1px solid var(--border); transition: background 0.12s; position: relative; }
 .nav-item:last-child { border-bottom: none; }
 .nav-item:hover { background: #f8faff; }
 .nav-item.active { background: #eef2ff; }
@@ -117,181 +64,50 @@ body { font-family: 'Noto Sans KR', 'Malgun Gothic', sans-serif; background: var
 .nav-item.overview-nav.active { background: #eef2ff; }
 .nav-icon { font-size: 1rem; flex-shrink: 0; }
 .nav-text { font-size: 0.82rem; font-weight: 600; color: var(--accent); }
-
-.avatar {
-  width: 32px; height: 32px; border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 0.82rem; font-weight: 700; color: white;
-  flex-shrink: 0;
-}
+.avatar { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.82rem; font-weight: 700; color: white; flex-shrink: 0; }
 .nav-info { flex: 1; min-width: 0; }
 .nav-name { font-size: 0.88rem; font-weight: 600; }
 .nav-sub { font-size: 0.7rem; color: var(--text-muted); margin-top: 1px; }
-.nav-badge {
-  background: var(--accent);
-  color: white;
-  border-radius: 10px;
-  padding: 1px 7px;
-  font-size: 0.68rem;
-  font-weight: 700;
-  flex-shrink: 0;
-}
+.nav-badge { background: var(--accent); color: white; border-radius: 10px; padding: 1px 7px; font-size: 0.68rem; font-weight: 700; flex-shrink: 0; }
 
-/* ── Content area ── */
 .content { background: white; border-radius: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.07); overflow: hidden; }
-.content-header {
-  padding: 14px 20px;
-  border-bottom: 1px solid var(--border);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: white;
-}
+.content-header { padding: 14px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: white; }
 .content-title { font-size: 0.98rem; font-weight: 700; display: flex; align-items: center; gap: 10px; }
 .content-sub { font-size: 0.75rem; color: var(--text-muted); margin-top: 3px; }
 .content-actions { display: flex; gap: 8px; }
-.btn-clear {
-  background: #fff0f0; color: var(--red);
-  border: 1px solid #fecaca;
-  padding: 5px 12px; border-radius: 6px;
-  cursor: pointer; font-family: inherit; font-size: 0.75rem;
-}
+.btn-clear { background: #fff0f0; color: var(--red); border: 1px solid #fecaca; padding: 5px 12px; border-radius: 6px; cursor: pointer; font-family: inherit; font-size: 0.75rem; }
 .btn-clear:hover { background: #ffe4e4; }
 
-/* ── Tables ── */
-.table-wrap { overflow-x: auto; }
-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
-thead { background: #f8faff; }
-thead tr { background: #f8faff; }
-th {
-  padding: 9px 10px;
-  text-align: left;
-  font-weight: 600;
-  color: var(--text-muted);
-  border-bottom: 2px solid var(--border);
-  white-space: nowrap;
-  font-size: 0.72rem;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-td { padding: 5px 6px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
-tbody tr:hover td { background: #fafbff; }
-tbody tr.has-data { border-left: 2px solid transparent; }
-
-.row-num { width: 32px; text-align: center; color: #cbd5e1; font-size: 0.7rem; }
-
-/* Inputs */
-input[type="text"], input[type="date"] {
-  width: 100%;
-  border: 1px solid transparent;
-  padding: 5px 8px;
-  border-radius: 4px;
-  font-family: inherit;
-  font-size: 0.8rem;
-  background: transparent;
-  transition: all 0.12s;
-  color: var(--text);
-}
-input[type="text"]:focus, input[type="date"]:focus {
-  outline: none;
-  border-color: var(--accent);
-  background: white;
-  box-shadow: 0 0 0 2px rgba(67,97,238,0.15);
-}
-input.amount-input { text-align: right; font-weight: 500; }
-
-.vat-ex-cell {
-  font-weight: 600;
-  color: var(--green);
-  font-size: 0.8rem;
-  padding: 5px 10px;
-  text-align: right;
-  white-space: nowrap;
-}
-
-/* Status select */
-.status-select {
-  width: 100%;
-  border: none;
-  padding: 4px 6px;
-  border-radius: 6px;
-  font-family: inherit;
-  font-size: 0.76rem;
-  font-weight: 600;
-  cursor: pointer;
-  outline: none;
-  appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2394a3b8'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 6px center;
-  padding-right: 20px;
-}
-
-/* Summary / footer */
-tfoot tr td {
-  background: #f8faff;
-  font-weight: 700;
-  border-top: 2px solid var(--border);
-  padding: 8px 10px;
-  font-size: 0.8rem;
-}
-
-/* Overview table */
-.ov-link { color: var(--accent); cursor: pointer; font-weight: 600; }
-.ov-link:hover { text-decoration: underline; }
-.status-pill {
-  display: inline-block;
-  padding: 2px 8px;
-  border-radius: 10px;
-  font-size: 0.7rem;
-  font-weight: 600;
-}
-
-/* Search bar */
-.search-wrap { padding: 10px 20px; border-bottom: 1px solid var(--border); }
-.search-input {
-  width: 100%;
-  border: 1px solid var(--border);
-  padding: 7px 12px;
-  border-radius: 8px;
-  font-size: 0.82rem;
-  font-family: inherit;
-  color: var(--text);
-}
-.search-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 2px rgba(67,97,238,0.12); }
-
-.helper { padding: 8px 20px; font-size: 0.72rem; color: var(--text-muted); border-top: 1px solid var(--border); background: #fafbff; }
-
-/* ── Member stage section ── */
-.member-stage-section {
-  padding: 14px 20px 12px;
-  background: #f8faff;
-  border-bottom: 2px solid var(--border);
-}
+.member-stage-section { padding: 14px 20px 12px; background: #f8faff; border-bottom: 2px solid var(--border); }
 .member-stage-section .section-label { margin-bottom: 8px; }
 .member-stage-section .stage-grid { margin-bottom: 0; }
 .member-stage-section .stage-card { padding: 10px 13px; }
 .member-stage-section .sc-count { font-size: 1.5rem; }
 
-/* Notification toast */
-#toast {
-  position: fixed;
-  bottom: 24px;
-  left: 50%;
-  transform: translateX(-50%) translateY(80px);
-  background: #1e293b;
-  color: white;
-  padding: 10px 22px;
-  border-radius: 8px;
-  font-size: 0.82rem;
-  font-weight: 500;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.25);
-  transition: transform 0.3s;
-  z-index: 999;
-  pointer-events: none;
-}
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+thead tr { background: #f8faff; }
+th { padding: 9px 10px; text-align: left; font-weight: 600; color: var(--text-muted); border-bottom: 2px solid var(--border); white-space: nowrap; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.5px; }
+td { padding: 5px 6px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
+tbody tr:hover td { background: #fafbff; }
+.row-num { width: 32px; text-align: center; color: #cbd5e1; font-size: 0.7rem; }
+input[type="text"], input[type="date"] { width: 100%; border: 1px solid transparent; padding: 5px 8px; border-radius: 4px; font-family: inherit; font-size: 0.8rem; background: transparent; transition: all 0.12s; color: var(--text); }
+input[type="text"]:focus, input[type="date"]:focus { outline: none; border-color: var(--accent); background: white; box-shadow: 0 0 0 2px rgba(67,97,238,0.15); }
+input.amount-input { text-align: right; font-weight: 500; }
+.vat-ex-cell { font-weight: 600; color: var(--green); font-size: 0.8rem; padding: 5px 10px; text-align: right; white-space: nowrap; }
+.status-select { width: 100%; border: none; padding: 4px 6px; border-radius: 6px; font-family: inherit; font-size: 0.76rem; font-weight: 600; cursor: pointer; outline: none; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2394a3b8'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 6px center; padding-right: 20px; }
+tfoot tr td { background: #f8faff; font-weight: 700; border-top: 2px solid var(--border); padding: 8px 10px; font-size: 0.8rem; }
+.ov-link { color: var(--accent); cursor: pointer; font-weight: 600; }
+.ov-link:hover { text-decoration: underline; }
+.search-wrap { padding: 10px 20px; border-bottom: 1px solid var(--border); }
+.search-input { width: 100%; border: 1px solid var(--border); padding: 7px 12px; border-radius: 8px; font-size: 0.82rem; font-family: inherit; color: var(--text); }
+.search-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 2px rgba(67,97,238,0.12); }
+.helper { padding: 8px 20px; font-size: 0.72rem; color: var(--text-muted); border-top: 1px solid var(--border); background: #fafbff; }
+.loading-state { padding: 60px; text-align: center; color: var(--text-muted); font-size: 0.9rem; }
+.loading-spinner { width: 32px; height: 32px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 14px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+#toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px); background: #1e293b; color: white; padding: 10px 22px; border-radius: 8px; font-size: 0.82rem; font-weight: 500; box-shadow: 0 4px 20px rgba(0,0,0,0.25); transition: transform 0.3s; z-index: 999; pointer-events: none; }
 #toast.show { transform: translateX(-50%) translateY(0); }
-
 @media (max-width: 960px) {
   .stage-grid { grid-template-columns: repeat(3, 1fr); }
   .layout { grid-template-columns: 1fr; }
@@ -303,38 +119,55 @@ tfoot tr td {
 <header class="header">
   <div class="header-left">
     <h1>📊 JK기업영업2팀 영업 파이프라인</h1>
-    <p>Sales Pipeline Dashboard · 데이터는 브라우저에 자동 저장됩니다</p>
+    <p>Sales Pipeline Dashboard · 실시간 공유</p>
   </div>
   <div class="header-right">
+    <span class="conn-status" id="connStatus">● 연결 중...</span>
     <span class="header-date" id="headerDate"></span>
     <button class="btn-export" onclick="exportCSV()">⬇ CSV 내보내기</button>
   </div>
 </header>
 
 <div class="main">
-  <div class="section-label">파이프라인 현황</div>
+  <div class="section-label">전체 파이프라인 현황</div>
   <div class="stage-grid" id="stageGrid"></div>
-
   <div class="layout">
     <div class="sidebar">
       <div class="sidebar-header">팀원 목록 (11명)</div>
       <div id="navList"></div>
     </div>
-    <div class="content" id="contentArea"></div>
+    <div class="content" id="contentArea">
+      <div class="loading-state"><div class="loading-spinner"></div>Firebase 연결 중...</div>
+    </div>
   </div>
 </div>
 
 <div id="toast"></div>
 
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 <script>
-// ── Constants ──────────────────────────────────────────────
+// ══════════════════════════════════════════════════════════
+//  🔥 Firebase 설정값 — Firebase 콘솔에서 복사 후 붙여넣기
+// ══════════════════════════════════════════════════════════
+const FIREBASE_CONFIG = {
+  apiKey:            "AIzaSyABNLmWfurhdaRA5cO-pVR4ad_89fjsU2w",
+  authDomain:        "jk-2-sales.firebaseapp.com",
+  databaseURL:       "https://jk-2-sales-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId:         "jk-2-sales",
+  storageBucket:     "jk-2-sales.firebasestorage.app",
+  messagingSenderId: "735345282400",
+  appId:             "1:735345282400:web:dbd3b70bc42a8a67b5e205"
+};
+// ══════════════════════════════════════════════════════════
+
+firebase.initializeApp(FIREBASE_CONFIG);
+const db = firebase.database();
+
 const MEMBERS = ['전혜숙','윤지연','허미남','라현선','채문정','박대석','김경옥','이윤장','박신선','이덕실','박경아'];
 const STATUSES = ['견적중','빌링완료','채용없음','보류','이탈'];
 const MAX_ROWS = 50;
-const KEY = 'jk_pipeline_v1';
-
 const AVATAR_COLORS = ['#4361ee','#7209b7','#e63946','#2dc653','#f8961e','#4cc9f0','#9b2226','#606c38','#3a0ca3','#f72585','#023e8a'];
-
 const STATUS_COLOR = {
   '견적중':  { text:'#4361ee', bg:'#eef2ff' },
   '빌링완료':{ text:'#2dc653', bg:'#e6f9ed' },
@@ -343,73 +176,84 @@ const STATUS_COLOR = {
   '이탈':   { text:'#ef233c', bg:'#fff0f0' },
 };
 
-// ── State ──────────────────────────────────────────────────
-let currentView = 'dashboard'; // 'dashboard' | member name
+let currentView = 'dashboard';
+let cache = {};
+let cacheReady = false;
 
-// ── Storage ───────────────────────────────────────────────
-function load() {
-  try { return JSON.parse(localStorage.getItem(KEY) || '{}'); }
-  catch { return {}; }
-}
-function save(data) { localStorage.setItem(KEY, JSON.stringify(data)); }
-
+// ── Firebase 데이터 ────────────────────────────────────────
 function getRows(name) {
-  const d = load();
-  if (!d[name]) {
-    d[name] = Array.from({length: MAX_ROWS}, () => ({co:'',mid:'',dt:'',vi:'',st:''}));
-    save(d);
-  }
-  while (d[name].length < MAX_ROWS) {
-    d[name].push({co:'',mid:'',dt:'',vi:'',st:''});
-  }
-  return d[name];
-}
-function setCell(name, i, field, val) {
-  const d = load();
-  if (!d[name]) getRows(name);
-  d[name][i][field] = val;
-  save(d);
+  const m = cache[name] || {};
+  return Array.from({length: MAX_ROWS}, (_, i) => m[i] || {co:'',mid:'',dt:'',vi:'',st:''});
 }
 
-// ── Math helpers ───────────────────────────────────────────
+function setCell(name, i, field, val) {
+  if (!cache[name]) cache[name] = {};
+  if (!cache[name][i]) cache[name][i] = {co:'',mid:'',dt:'',vi:'',st:''};
+  cache[name][i][field] = val;
+  db.ref(`pipeline/${name}/${i}/${field}`).set(val || null);
+}
+
+// ── 실시간 리스너 ──────────────────────────────────────────
+function initRealtime() {
+  db.ref('.info/connected').on('value', snap => {
+    const el = document.getElementById('connStatus');
+    if (!el) return;
+    el.textContent = snap.val() ? '● 실시간 연결됨' : '● 연결 끊김';
+    el.style.color  = snap.val() ? '#2dc653' : '#ef233c';
+  });
+
+  db.ref('pipeline').on('value', snapshot => {
+    const newData = snapshot.val() || {};
+    MEMBERS.forEach(m => {
+      if (m !== currentView) cache[m] = newData[m] || {};
+    });
+    if (!cacheReady) {
+      cacheReady = true;
+      renderStageCards();
+      renderNav();
+      showDashboard();
+    } else {
+      renderStageCards();
+      renderNav();
+      if (currentView === 'dashboard') showDashboard();
+      else refreshMemberStageCards(currentView);
+    }
+  });
+}
+
+// ── 계산 유틸 ──────────────────────────────────────────────
 function vatEx(vi) {
   const n = parseFloat(String(vi).replace(/,/g,''));
-  if (!n) return null;
-  return Math.round(n / 1.1);
+  return isNaN(n) || n === 0 ? null : Math.round(n / 1.1);
 }
-function fmt(n) {
-  if (n === null || n === undefined || n === '') return '';
-  return Number(n).toLocaleString('ko-KR');
-}
+function fmt(n) { return (n === null || n === undefined || n === '') ? '' : Number(n).toLocaleString('ko-KR'); }
 function fmtW(n) {
   if (!n) return '-';
   if (n >= 100000000) return (n/100000000).toFixed(1) + '억';
   if (n >= 10000) return Math.round(n/10000) + '만';
   return fmt(n);
 }
-function rawNum(s) { return s.replace(/[^0-9]/g,''); }
+function rawNum(s) { return String(s).replace(/[^0-9]/g,''); }
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function statusStyle(s) { const c = STATUS_COLOR[s]; return c ? `color:${c.text};background:${c.bg}` : ''; }
+function avt(name, i, size=32) { return `<div class="avatar" style="width:${size}px;height:${size}px;background:${AVATAR_COLORS[i]}">${name[0]}</div>`; }
 
-// ── Aggregate stats ────────────────────────────────────────
+// ── 통계 ───────────────────────────────────────────────────
 function stats() {
-  const d = load();
   const byStatus = {};
   STATUSES.forEach(s => { byStatus[s] = {count:0, vatIn:0, vatEx:0}; });
-
   const byMember = {};
   MEMBERS.forEach(m => {
     byMember[m] = {total:0, vatIn:0, vatEx:0};
     STATUSES.forEach(s => { byMember[m][s] = 0; });
-    (d[m]||[]).forEach(r => {
-      if (!r.co && !r.mid) return;
+    Object.values(cache[m] || {}).forEach(r => {
+      if (!r || (!r.co && !r.mid)) return;
       byMember[m].total++;
       const vi = parseFloat(String(r.vi||'').replace(/,/g,''))||0;
       const ve = vatEx(vi)||0;
-      byMember[m].vatIn += vi;
-      byMember[m].vatEx += ve;
+      byMember[m].vatIn += vi; byMember[m].vatEx += ve;
       if (r.st && byStatus[r.st]) {
-        byStatus[r.st].count++;
-        byStatus[r.st].vatIn += vi;
-        byStatus[r.st].vatEx += ve;
+        byStatus[r.st].count++; byStatus[r.st].vatIn += vi; byStatus[r.st].vatEx += ve;
         byMember[m][r.st]++;
       }
     });
@@ -417,70 +261,63 @@ function stats() {
   return {byStatus, byMember};
 }
 
-// ── Render helpers ─────────────────────────────────────────
-function esc(s) {
-  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-function statusStyle(s) {
-  const c = STATUS_COLOR[s];
-  if (!c) return '';
-  return `color:${c.text};background:${c.bg}`;
-}
-function avt(name, i, size=32) {
-  return `<div class="avatar" style="width:${size}px;height:${size}px;background:${AVATAR_COLORS[i]}">${name[0]}</div>`;
+function memberStats(name) {
+  const byStatus = {};
+  STATUSES.forEach(s => { byStatus[s] = {count:0, vatEx:0}; });
+  let total = 0, totalVatEx = 0;
+  Object.values(cache[name] || {}).forEach(r => {
+    if (!r || (!r.co && !r.mid)) return;
+    total++;
+    const vi = parseFloat(String(r.vi||'').replace(/,/g,''))||0;
+    const ve = vatEx(vi)||0;
+    totalVatEx += ve;
+    if (r.st && byStatus[r.st]) { byStatus[r.st].count++; byStatus[r.st].vatEx += ve; }
+  });
+  return {byStatus, total, totalVatEx};
 }
 
 // ── Toast ──────────────────────────────────────────────────
 let toastTimer;
 function toast(msg) {
   const el = document.getElementById('toast');
-  el.textContent = msg;
-  el.classList.add('show');
+  el.textContent = msg; el.classList.add('show');
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => el.classList.remove('show'), 2200);
 }
 
-// ── Member-level stats ─────────────────────────────────────
-function memberStats(name) {
-  const d = load();
-  const byStatus = {};
-  STATUSES.forEach(s => { byStatus[s] = {count:0, vatIn:0, vatEx:0}; });
-  let total = 0, totalVatIn = 0, totalVatEx = 0;
-  (d[name]||[]).forEach(r => {
-    if (!r.co && !r.mid) return;
-    total++;
-    const vi = parseFloat(String(r.vi||'').replace(/,/g,''))||0;
-    const ve = vatEx(vi)||0;
-    totalVatIn += vi; totalVatEx += ve;
-    if (r.st && byStatus[r.st]) {
-      byStatus[r.st].count++;
-      byStatus[r.st].vatIn += vi;
-      byStatus[r.st].vatEx += ve;
-    }
-  });
-  return {byStatus, total, totalVatIn, totalVatEx};
+// ── 전체 파이프라인 카드 ────────────────────────────────────
+function renderStageCards() {
+  const s = stats();
+  const total = STATUSES.reduce((a,st) => a + s.byStatus[st].count, 0) || 1;
+  document.getElementById('stageGrid').innerHTML = STATUSES.map(st => {
+    const c = s.byStatus[st];
+    const col = STATUS_COLOR[st].text;
+    return `<div class="stage-card" data-s="${st}">
+      <div class="sc-label" style="color:${col}">${st}</div>
+      <div class="sc-count">${c.count}<span>건</span></div>
+      <div class="sc-amount">VAT별도 ${fmtW(c.vatEx)}</div>
+      <div class="sc-bar"><div class="sc-bar-fill" style="width:${Math.round(c.count/total*100)}%;background:${col}"></div></div>
+    </div>`;
+  }).join('');
 }
 
+// ── 인원별 파이프라인 카드 ─────────────────────────────────
 function memberStageCardsHtml(name) {
   const ms = memberStats(name);
   const total = ms.total || 1;
-  const cards = STATUSES.map(st => {
-    const c = ms.byStatus[st];
-    const pct = Math.round(c.count / total * 100);
-    const col = STATUS_COLOR[st].text;
-    return `
-      <div class="stage-card" data-s="${st}">
+  return `<div class="member-stage-section" id="memberStageSection">
+    <div class="section-label">${name} 님 파이프라인 현황</div>
+    <div class="stage-grid">${STATUSES.map(st => {
+      const c = ms.byStatus[st];
+      const col = STATUS_COLOR[st].text;
+      return `<div class="stage-card" data-s="${st}">
         <div class="sc-label" style="color:${col}">${st}</div>
         <div class="sc-count">${c.count}<span>건</span></div>
         <div class="sc-amount">VAT별도 ${fmtW(c.vatEx)}</div>
-        <div class="sc-bar"><div class="sc-bar-fill" style="width:${pct}%;background:${col}"></div></div>
+        <div class="sc-bar"><div class="sc-bar-fill" style="width:${Math.round(c.count/total*100)}%;background:${col}"></div></div>
       </div>`;
-  }).join('');
-  return `
-    <div class="member-stage-section" id="memberStageSection">
-      <div class="section-label">${name} 님 파이프라인 현황</div>
-      <div class="stage-grid">${cards}</div>
-    </div>`;
+    }).join('')}</div>
+  </div>`;
 }
 
 function refreshMemberStageCards(name) {
@@ -490,59 +327,35 @@ function refreshMemberStageCards(name) {
   const total = ms.total || 1;
   STATUSES.forEach(st => {
     const c = ms.byStatus[st];
-    const pct = Math.round(c.count / total * 100);
-    const col = STATUS_COLOR[st].text;
     const card = sec.querySelector(`.stage-card[data-s="${st}"]`);
     if (!card) return;
     card.querySelector('.sc-count').innerHTML = `${c.count}<span>건</span>`;
     card.querySelector('.sc-amount').textContent = `VAT별도 ${fmtW(c.vatEx)}`;
-    card.querySelector('.sc-bar-fill').style.width = pct + '%';
+    card.querySelector('.sc-bar-fill').style.width = Math.round(c.count/total*100) + '%';
   });
 }
 
-// ── Stage cards ────────────────────────────────────────────
-function renderStageCards() {
-  const s = stats();
-  const total = STATUSES.reduce((a,st) => a + s.byStatus[st].count, 0) || 1;
-  document.getElementById('stageGrid').innerHTML = STATUSES.map(st => {
-    const c = s.byStatus[st];
-    const pct = Math.round(c.count / total * 100);
-    const col = STATUS_COLOR[st].text;
-    return `
-      <div class="stage-card" data-s="${st}">
-        <div class="sc-label" style="color:${col}">${st}</div>
-        <div class="sc-count">${c.count}<span>건</span></div>
-        <div class="sc-amount">VAT별도 ${fmtW(c.vatEx)}</div>
-        <div class="sc-bar"><div class="sc-bar-fill" style="width:${pct}%;background:${col}"></div></div>
-      </div>`;
-  }).join('');
-}
-
-// ── Sidebar nav ────────────────────────────────────────────
+// ── 사이드바 ───────────────────────────────────────────────
 function renderNav() {
   const s = stats();
-  let html = `
-    <div class="nav-item overview-nav ${currentView==='dashboard'?'active':''}" onclick="showDashboard()">
-      <span class="nav-icon">📋</span>
-      <span class="nav-text">전체 현황</span>
-    </div>`;
+  let html = `<div class="nav-item overview-nav ${currentView==='dashboard'?'active':''}" onclick="showDashboard()">
+    <span class="nav-icon">📋</span><span class="nav-text">전체 현황</span>
+  </div>`;
   MEMBERS.forEach((m, i) => {
     const ms = s.byMember[m];
-    const active = currentView === m ? ' active' : '';
-    html += `
-      <div class="nav-item${active}" onclick="showMember('${m}')">
-        ${avt(m, i)}
-        <div class="nav-info">
-          <div class="nav-name">${m}</div>
-          <div class="nav-sub">${ms.total}건 · ${fmtW(ms.vatEx)}</div>
-        </div>
-        ${ms.total > 0 ? `<span class="nav-badge">${ms.total}</span>` : ''}
-      </div>`;
+    html += `<div class="nav-item${currentView===m?' active':''}" onclick="showMember('${m}')">
+      ${avt(m,i)}
+      <div class="nav-info">
+        <div class="nav-name">${m}</div>
+        <div class="nav-sub">${ms.total}건 · ${fmtW(ms.vatEx)}</div>
+      </div>
+      ${ms.total>0?`<span class="nav-badge">${ms.total}</span>`:''}
+    </div>`;
   });
   document.getElementById('navList').innerHTML = html;
 }
 
-// ── Dashboard view ─────────────────────────────────────────
+// ── 전체 현황 ──────────────────────────────────────────────
 function showDashboard() {
   currentView = 'dashboard';
   renderNav();
@@ -550,22 +363,6 @@ function showDashboard() {
   const totVatEx = MEMBERS.reduce((a,m) => a + s.byMember[m].vatEx, 0);
   const totVatIn = MEMBERS.reduce((a,m) => a + s.byMember[m].vatIn, 0);
   const totCount = MEMBERS.reduce((a,m) => a + s.byMember[m].total, 0);
-
-  let rows = MEMBERS.map((m, i) => {
-    const ms = s.byMember[m];
-    return `
-      <tr>
-        <td><div style="display:flex;align-items:center;gap:8px">
-          ${avt(m, i, 26)}
-          <span class="ov-link" onclick="showMember('${m}')">${m}</span>
-        </div></td>
-        <td style="font-weight:700;text-align:center">${ms.total}</td>
-        ${STATUSES.map(st => `<td style="text-align:center">${ms[st]||0}</td>`).join('')}
-        <td style="font-weight:700;color:var(--green);text-align:right">${ms.vatEx ? fmt(ms.vatEx)+'원' : '-'}</td>
-        <td style="color:var(--text-muted);text-align:right">${ms.vatIn ? fmt(ms.vatIn)+'원' : '-'}</td>
-      </tr>`;
-  }).join('');
-
   document.getElementById('contentArea').innerHTML = `
     <div class="content-header">
       <div>
@@ -573,28 +370,32 @@ function showDashboard() {
         <div class="content-sub">총 ${totCount}건 · VAT별도 합계 ${fmt(totVatEx)}원</div>
       </div>
     </div>
-    <div class="table-wrap">
-      <table>
-        <thead><tr>
-          <th>팀원</th>
-          <th style="text-align:center">총건수</th>
-          ${STATUSES.map(st=>`<th style="text-align:center;color:${STATUS_COLOR[st].text}">${st}</th>`).join('')}
-          <th style="text-align:right">VAT별도 합계</th>
-          <th style="text-align:right">VAT포함 합계</th>
-        </tr></thead>
-        <tbody>${rows}</tbody>
-        <tfoot><tr>
-          <td>합계</td>
-          <td style="text-align:center">${totCount}</td>
-          ${STATUSES.map(st=>`<td style="text-align:center">${s.byStatus[st].count}</td>`).join('')}
-          <td style="color:var(--green);text-align:right">${fmt(totVatEx)}원</td>
-          <td style="text-align:right">${fmt(totVatIn)}원</td>
-        </tr></tfoot>
-      </table>
-    </div>`;
+    <div class="table-wrap"><table>
+      <thead><tr>
+        <th>팀원</th><th style="text-align:center">총건수</th>
+        ${STATUSES.map(st=>`<th style="text-align:center;color:${STATUS_COLOR[st].text}">${st}</th>`).join('')}
+        <th style="text-align:right">VAT별도 합계</th><th style="text-align:right">VAT포함 합계</th>
+      </tr></thead>
+      <tbody>${MEMBERS.map((m,i) => {
+        const ms = s.byMember[m];
+        return `<tr>
+          <td><div style="display:flex;align-items:center;gap:8px">${avt(m,i,26)}<span class="ov-link" onclick="showMember('${m}')">${m}</span></div></td>
+          <td style="font-weight:700;text-align:center">${ms.total}</td>
+          ${STATUSES.map(st=>`<td style="text-align:center">${ms[st]||0}</td>`).join('')}
+          <td style="font-weight:700;color:var(--green);text-align:right">${ms.vatEx?fmt(ms.vatEx)+'원':'-'}</td>
+          <td style="color:var(--text-muted);text-align:right">${ms.vatIn?fmt(ms.vatIn)+'원':'-'}</td>
+        </tr>`;
+      }).join('')}</tbody>
+      <tfoot><tr>
+        <td>합계</td><td style="text-align:center">${totCount}</td>
+        ${STATUSES.map(st=>`<td style="text-align:center">${s.byStatus[st].count}</td>`).join('')}
+        <td style="color:var(--green);text-align:right">${fmt(totVatEx)}원</td>
+        <td style="text-align:right">${fmt(totVatIn)}원</td>
+      </tr></tfoot>
+    </table></div>`;
 }
 
-// ── Member table ───────────────────────────────────────────
+// ── 팀원 입력 테이블 ───────────────────────────────────────
 function showMember(name) {
   currentView = name;
   renderNav();
@@ -604,45 +405,19 @@ function showMember(name) {
 function renderMemberContent(name) {
   const idx = MEMBERS.indexOf(name);
   const rows = getRows(name);
-
   let totVatIn = 0, totVatEx = 0, totCount = 0;
   rows.forEach(r => {
     if (!r.co && !r.mid) return;
     totCount++;
     const vi = parseFloat(String(r.vi||'').replace(/,/g,''))||0;
-    totVatIn += vi;
-    totVatEx += (vatEx(vi)||0);
+    totVatIn += vi; totVatEx += (vatEx(vi)||0);
   });
-
-  const rowsHtml = rows.map((r, i) => {
-    const ve = r.vi ? vatEx(parseFloat(String(r.vi).replace(/,/g,''))) : null;
-    const stStyle = r.st ? statusStyle(r.st) : '';
-    const hasData = (r.co || r.mid) ? 'has-data' : '';
-    return `
-      <tr id="tr${i}" class="${hasData}" style="border-left:2px solid ${r.st && STATUS_COLOR[r.st] ? STATUS_COLOR[r.st].text : 'transparent'}">
-        <td class="row-num">${i+1}</td>
-        <td><input type="text" id="co${i}" value="${esc(r.co)}" placeholder="기업명" oninput="fc('${name}',${i},'co',this.value)"></td>
-        <td><input type="text" id="mid${i}" value="${esc(r.mid)}" placeholder="메인ID" oninput="fc('${name}',${i},'mid',this.value)"></td>
-        <td><input type="date" id="dt${i}" value="${esc(r.dt)}" onchange="fc('${name}',${i},'dt',this.value)"></td>
-        <td><input type="text" id="vi${i}" value="${r.vi ? fmt(r.vi) : ''}" placeholder="0" class="amount-input"
-          onfocus="this.value=rawNum(this.value)"
-          onblur="fvi('${name}',${i},this)"></td>
-        <td class="vat-ex-cell" id="ve${i}">${ve !== null ? fmt(ve)+'원' : ''}</td>
-        <td>
-          <select class="status-select" id="st${i}" style="${stStyle}"
-            onchange="fst('${name}',${i},this)">
-            <option value="">-- 선택 --</option>
-            ${STATUSES.map(s=>`<option value="${s}" ${r.st===s?'selected':''} style="${statusStyle(s)}">${s}</option>`).join('')}
-          </select>
-        </td>
-      </tr>`;
-  }).join('');
 
   document.getElementById('contentArea').innerHTML = `
     ${memberStageCardsHtml(name)}
     <div class="content-header">
       <div style="display:flex;align-items:center;gap:10px">
-        ${avt(name, idx, 38)}
+        ${avt(name,idx,38)}
         <div>
           <div class="content-title">${name} 님의 영업 파이프라인</div>
           <div class="content-sub" id="memberSub">${totCount}건 · VAT별도 합계 ${fmt(totVatEx)}원</div>
@@ -655,42 +430,49 @@ function renderMemberContent(name) {
     <div class="search-wrap">
       <input class="search-input" type="text" placeholder="🔍 기업명 또는 메인ID 검색..." oninput="filterRows(this.value)">
     </div>
-    <div class="table-wrap">
-      <table id="memberTable">
-        <thead><tr>
-          <th style="width:36px">#</th>
-          <th style="min-width:160px">기업명</th>
-          <th style="min-width:120px">메인ID</th>
-          <th style="min-width:128px">견적일</th>
-          <th style="min-width:140px;text-align:right">금액 (VAT포함)</th>
-          <th style="min-width:140px;text-align:right">금액 (VAT별도)</th>
-          <th style="min-width:120px">상태</th>
-        </tr></thead>
-        <tbody id="memberTbody">${rowsHtml}</tbody>
-        <tfoot><tr>
-          <td colspan="4" style="text-align:right;color:var(--text-muted);font-size:0.75rem">합계</td>
-          <td id="footVatIn" style="text-align:right">${totVatIn ? fmt(totVatIn)+'원' : '-'}</td>
-          <td id="footVatEx" style="text-align:right;color:var(--green)">${totVatEx ? fmt(totVatEx)+'원' : '-'}</td>
-          <td></td>
-        </tr></tfoot>
-      </table>
-    </div>
+    <div class="table-wrap"><table id="memberTable">
+      <thead><tr>
+        <th style="width:36px">#</th>
+        <th style="min-width:160px">기업명</th>
+        <th style="min-width:120px">메인ID</th>
+        <th style="min-width:128px">견적일</th>
+        <th style="min-width:140px;text-align:right">금액 (VAT포함)</th>
+        <th style="min-width:140px;text-align:right">금액 (VAT별도)</th>
+        <th style="min-width:120px">상태</th>
+      </tr></thead>
+      <tbody id="memberTbody">${rows.map((r,i) => {
+        const ve = r.vi ? vatEx(parseFloat(String(r.vi).replace(/,/g,''))) : null;
+        return `<tr id="tr${i}" style="border-left:2px solid ${r.st&&STATUS_COLOR[r.st]?STATUS_COLOR[r.st].text:'transparent'}">
+          <td class="row-num">${i+1}</td>
+          <td><input type="text" id="co${i}" value="${esc(r.co)}" placeholder="기업명" oninput="fc('${name}',${i},'co',this.value)"></td>
+          <td><input type="text" id="mid${i}" value="${esc(r.mid)}" placeholder="메인ID" oninput="fc('${name}',${i},'mid',this.value)"></td>
+          <td><input type="date" id="dt${i}" value="${esc(r.dt)}" onchange="fc('${name}',${i},'dt',this.value)"></td>
+          <td><input type="text" id="vi${i}" value="${r.vi?fmt(r.vi):''}" placeholder="0" class="amount-input"
+            onfocus="this.value=rawNum(this.value)" onblur="fvi('${name}',${i},this)"></td>
+          <td class="vat-ex-cell" id="ve${i}">${ve!==null?fmt(ve)+'원':''}</td>
+          <td><select class="status-select" id="st${i}" style="${r.st?statusStyle(r.st):''}" onchange="fst('${name}',${i},this)">
+            <option value="">-- 선택 --</option>
+            ${STATUSES.map(s=>`<option value="${s}" ${r.st===s?'selected':''} style="${statusStyle(s)}">${s}</option>`).join('')}
+          </select></td>
+        </tr>`;
+      }).join('')}</tbody>
+      <tfoot><tr>
+        <td colspan="4" style="text-align:right;color:var(--text-muted);font-size:0.75rem">합계</td>
+        <td id="footVatIn" style="text-align:right">${totVatIn?fmt(totVatIn)+'원':'-'}</td>
+        <td id="footVatEx" style="text-align:right;color:var(--green)">${totVatEx?fmt(totVatEx)+'원':'-'}</td>
+        <td></td>
+      </tr></tfoot>
+    </table></div>
     <div class="helper">* 금액(VAT포함) 입력 후 Tab 또는 클릭하면 VAT별도 금액이 자동 계산됩니다 (÷ 1.1)</div>`;
 }
 
-// ── Cell update handlers ───────────────────────────────────
+// ── 셀 핸들러 ──────────────────────────────────────────────
 function fc(name, i, field, val) {
   setCell(name, i, field, val);
-  // Update row style
-  const r = load()[name][i];
+  const r = (cache[name]||{})[i]||{};
   const tr = document.getElementById(`tr${i}`);
-  if (tr) {
-    tr.className = (r.co || r.mid) ? 'has-data' : '';
-    tr.style.borderLeft = `2px solid ${r.st && STATUS_COLOR[r.st] ? STATUS_COLOR[r.st].text : 'transparent'}`;
-  }
+  if (tr) tr.style.borderLeft = `2px solid ${r.st&&STATUS_COLOR[r.st]?STATUS_COLOR[r.st].text:'transparent'}`;
   refreshSummary(name);
-  renderStageCards();
-  renderNav();
 }
 
 function fvi(name, i, input) {
@@ -708,9 +490,6 @@ function fvi(name, i, input) {
     const veCell = document.getElementById(`ve${i}`);
     if (veCell) veCell.textContent = '';
   }
-  const tr = document.getElementById(`tr${i}`);
-  const r = load()[name][i];
-  if (tr) tr.className = (r.co || r.mid) ? 'has-data' : '';
   refreshSummary(name);
   renderStageCards();
   renderNav();
@@ -721,93 +500,66 @@ function fst(name, i, sel) {
   setCell(name, i, 'st', st);
   sel.style.cssText = statusStyle(st);
   const tr = document.getElementById(`tr${i}`);
-  if (tr) tr.style.borderLeft = `2px solid ${st && STATUS_COLOR[st] ? STATUS_COLOR[st].text : 'transparent'}`;
+  if (tr) tr.style.borderLeft = `2px solid ${st&&STATUS_COLOR[st]?STATUS_COLOR[st].text:'transparent'}`;
   refreshSummary(name);
   renderStageCards();
   renderNav();
 }
 
 function refreshSummary(name) {
-  const rows = load()[name] || [];
+  const rows = getRows(name);
   let totVatIn = 0, totVatEx = 0, totCount = 0;
   rows.forEach(r => {
     if (!r.co && !r.mid) return;
     totCount++;
     const vi = parseFloat(String(r.vi||'').replace(/,/g,''))||0;
-    totVatIn += vi;
-    totVatEx += (vatEx(vi)||0);
+    totVatIn += vi; totVatEx += (vatEx(vi)||0);
   });
   const sub = document.getElementById('memberSub');
   if (sub) sub.textContent = `${totCount}건 · VAT별도 합계 ${fmt(totVatEx)}원`;
-  const fvi = document.getElementById('footVatIn');
-  const fve = document.getElementById('footVatEx');
-  if (fvi) fvi.textContent = totVatIn ? fmt(totVatIn)+'원' : '-';
-  if (fve) fve.textContent = totVatEx ? fmt(totVatEx)+'원' : '-';
+  const fviEl = document.getElementById('footVatIn');
+  const fveEl = document.getElementById('footVatEx');
+  if (fviEl) fviEl.textContent = totVatIn ? fmt(totVatIn)+'원' : '-';
+  if (fveEl) fveEl.textContent = totVatEx ? fmt(totVatEx)+'원' : '-';
   refreshMemberStageCards(name);
 }
 
-// ── Search filter ──────────────────────────────────────────
 function filterRows(q) {
   const q2 = q.toLowerCase();
-  const tbody = document.getElementById('memberTbody');
-  if (!tbody) return;
-  tbody.querySelectorAll('tr').forEach(tr => {
+  document.querySelectorAll('#memberTbody tr').forEach(tr => {
     if (!q2) { tr.style.display = ''; return; }
-    const co = tr.querySelector('input[id^="co"]');
-    const mid = tr.querySelector('input[id^="mid"]');
-    const coVal = (co ? co.value : '').toLowerCase();
-    const midVal = (mid ? mid.value : '').toLowerCase();
-    tr.style.display = (coVal.includes(q2) || midVal.includes(q2)) ? '' : 'none';
+    const co = (tr.querySelector('input[id^="co"]')||{}).value||'';
+    const mid = (tr.querySelector('input[id^="mid"]')||{}).value||'';
+    tr.style.display = (co.toLowerCase().includes(q2)||mid.toLowerCase().includes(q2)) ? '' : 'none';
   });
 }
 
-// ── Clear member ───────────────────────────────────────────
 function clearMember(name) {
   if (!confirm(`${name} 님의 모든 데이터를 초기화하시겠습니까?`)) return;
-  const d = load();
-  d[name] = Array.from({length: MAX_ROWS}, () => ({co:'',mid:'',dt:'',vi:'',st:''}));
-  save(d);
-  showMember(name);
-  renderStageCards();
-  renderNav();
+  cache[name] = {};
+  db.ref(`pipeline/${name}`).remove();
+  showMember(name); renderStageCards(); renderNav();
   toast(`${name} 님 데이터를 초기화했습니다.`);
 }
 
-// ── CSV export ─────────────────────────────────────────────
 function exportCSV() {
-  const d = load();
   let csv = '﻿팀원,번호,기업명,메인ID,견적일,금액(VAT포함),금액(VAT별도),상태\n';
   MEMBERS.forEach(m => {
-    (d[m]||[]).forEach((r, i) => {
+    getRows(m).forEach((r, i) => {
       if (!r.co && !r.mid) return;
       const vi = parseFloat(String(r.vi||'').replace(/,/g,''))||0;
-      const ve = vatEx(vi)||'';
-      csv += [m, i+1,
-        `"${(r.co||'').replace(/"/g,'""')}"`,
-        `"${(r.mid||'').replace(/"/g,'""')}"`,
-        r.dt||'', vi||'', ve,
-        r.st||''
-      ].join(',') + '\n';
+      csv += [m,i+1,`"${(r.co||'').replace(/"/g,'""')}"`,`"${(r.mid||'').replace(/"/g,'""')}"`,r.dt||'',vi||'',vatEx(vi)||'',r.st||''].join(',') + '\n';
     });
   });
-  const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `JK영업파이프라인_${new Date().toISOString().slice(0,10)}.csv`;
+  const a = Object.assign(document.createElement('a'), {href: URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8;'})), download:`JK영업파이프라인_${new Date().toISOString().slice(0,10)}.csv`});
   a.click();
-  URL.revokeObjectURL(url);
   toast('CSV 파일로 내보냈습니다.');
 }
 
-// ── Init ───────────────────────────────────────────────────
 (function init() {
-  const now = new Date();
   document.getElementById('headerDate').textContent =
-    now.toLocaleDateString('ko-KR', {year:'numeric',month:'long',day:'numeric',weekday:'long'});
-  renderStageCards();
-  renderNav();
-  showDashboard();
+    new Date().toLocaleDateString('ko-KR',{year:'numeric',month:'long',day:'numeric',weekday:'long'});
+  initRealtime();
 })();
 </script>
 </body>
