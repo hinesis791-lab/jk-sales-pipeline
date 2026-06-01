@@ -33,6 +33,8 @@ body { font-family: 'Noto Sans KR', 'Malgun Gothic', sans-serif; background: var
 .conn-status { font-size: 0.73rem; font-weight: 600; padding: 3px 10px; border-radius: 12px; background: rgba(255,255,255,0.12); transition: color 0.3s; }
 .btn-export { border: 1px solid rgba(255,255,255,0.35); background: rgba(255,255,255,0.12); color: white; padding: 6px 14px; border-radius: 6px; font-size: 0.78rem; font-family: inherit; cursor: pointer; transition: background 0.2s; }
 .btn-export:hover { background: rgba(255,255,255,0.22); }
+.btn-excel { border: 1px solid rgba(45,198,83,0.6); background: rgba(45,198,83,0.22); color: white; padding: 6px 14px; border-radius: 6px; font-size: 0.78rem; font-family: inherit; cursor: pointer; transition: background 0.2s; font-weight: 600; }
+.btn-excel:hover { background: rgba(45,198,83,0.38); }
 
 .main { padding: 18px 24px; max-width: 1700px; margin: 0 auto; }
 .section-label { font-size: 0.72rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
@@ -139,7 +141,8 @@ tfoot tr td { background: #f8faff; font-weight: 700; border-top: 2px solid var(-
   <div class="header-right">
     <span class="conn-status" id="connStatus">● 연결 중...</span>
     <span class="header-date" id="headerDate"></span>
-    <button class="btn-export" onclick="exportCSV()">⬇ CSV 내보내기</button>
+    <button class="btn-excel" onclick="exportExcel()">📊 엑셀 다운로드</button>
+    <button class="btn-export" onclick="exportCSV()">⬇ CSV</button>
   </div>
 </header>
 
@@ -159,6 +162,7 @@ tfoot tr td { background: #f8faff; font-weight: 700; border-top: 2px solid var(-
 
 <div id="toast"></div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 <script>
@@ -592,6 +596,110 @@ function clearMember(name) {
   db.ref(`pipeline/${name}`).remove();
   showMember(name); renderStageCards(); renderNav();
   toast(`${name} 님 데이터를 초기화했습니다.`);
+}
+
+function exportExcel() {
+  const YEAR = 2026;
+  const MONTHS = [6,7,8,9,10,11,12];
+  const wb = XLSX.utils.book_new();
+
+  // 헬퍼: 셀 스타일 적용
+  function setCell(ws, addr, v, opts) {
+    if (!ws[addr]) ws[addr] = {};
+    ws[addr].v = v;
+    ws[addr].t = (typeof v === 'number') ? 'n' : 's';
+    if (opts && opts.numFmt) ws[addr].z = opts.numFmt;
+  }
+
+  MONTHS.forEach(month => {
+    const mLabel = `${month}월`;
+    const aoa = []; // array of arrays
+
+    // ── 타이틀 ──────────────────────────────────────────
+    aoa.push([`JK기업영업2팀 영업 파이프라인 — ${YEAR}년 ${mLabel}`]);
+    aoa.push([]);
+
+    // ── 인원별 요약 헤더 ─────────────────────────────────
+    aoa.push(['▶ 인원별 현황 요약']);
+    aoa.push(['팀원', '총건수', '견적중', '빌링완료', '채용없음', '보류', '이탈', 'VAT별도 합계(원)', 'VAT포함 합계(원)']);
+
+    let gTotal=0, gVatIn=0, gVatEx=0;
+    const gSt = {}; STATUSES.forEach(s => { gSt[s]=0; });
+
+    const memberSummaries = [];
+    MEMBERS.forEach(m => {
+      const filtered = getRows(m).filter(r => {
+        if (!r.co && !r.mid) return false;
+        if (!r.dt) return false;
+        const d = new Date(r.dt);
+        return d.getFullYear() === YEAR && d.getMonth()+1 === month;
+      });
+      let mTotal=0, mVatIn=0, mVatEx=0;
+      const mSt = {}; STATUSES.forEach(s => { mSt[s]=0; });
+      filtered.forEach(r => {
+        mTotal++;
+        const vi = parseFloat(String(r.vi||'').replace(/,/g,''))||0;
+        const ve = (vatEx(vi)||0);
+        mVatIn += vi; mVatEx += ve;
+        if (r.st && mSt[r.st]!==undefined) mSt[r.st]++;
+      });
+      gTotal+=mTotal; gVatIn+=mVatIn; gVatEx+=mVatEx;
+      STATUSES.forEach(s => { gSt[s]+=mSt[s]; });
+      aoa.push([m, mTotal, ...STATUSES.map(s=>mSt[s]), mVatEx, mVatIn]);
+      memberSummaries.push({m, filtered});
+    });
+
+    // 합계 행
+    aoa.push(['합계', gTotal, ...STATUSES.map(s=>gSt[s]), gVatEx, gVatIn]);
+    aoa.push([]);
+    aoa.push([]);
+
+    // ── 상태별 현황 ──────────────────────────────────────
+    aoa.push(['▶ 상태별 현황']);
+    aoa.push(['상태', '건수', 'VAT별도 합계(원)', 'VAT포함 합계(원)']);
+    STATUSES.forEach(st => {
+      let stCount=0, stVatIn=0, stVatEx=0;
+      memberSummaries.forEach(({filtered}) => {
+        filtered.forEach(r => {
+          if (r.st !== st) return;
+          stCount++;
+          const vi = parseFloat(String(r.vi||'').replace(/,/g,''))||0;
+          stVatIn += vi; stVatEx += (vatEx(vi)||0);
+        });
+      });
+      aoa.push([st, stCount, stVatEx, stVatIn]);
+    });
+    aoa.push(['합계', gTotal, gVatEx, gVatIn]);
+    aoa.push([]);
+    aoa.push([]);
+
+    // ── 상세 데이터 ──────────────────────────────────────
+    aoa.push(['▶ 상세 데이터']);
+    aoa.push(['팀원', '번호', '기업명', '메인ID', '견적일', '금액(VAT포함)', '금액(VAT별도)', '상태']);
+    memberSummaries.forEach(({m, filtered}) => {
+      filtered.forEach((r, idx) => {
+        const vi = parseFloat(String(r.vi||'').replace(/,/g,''))||0;
+        aoa.push([m, idx+1, r.co||'', r.mid||'', r.dt||'', vi||0, vatEx(vi)||0, r.st||'']);
+      });
+    });
+
+    // 시트 생성
+    const ws = XLSX.utils.aoa_to_sheet(aoa);
+
+    // 컬럼 너비 설정
+    ws['!cols'] = [
+      {wch:12},{wch:8},{wch:24},{wch:16},
+      {wch:13},{wch:18},{wch:18},{wch:10},{wch:18}
+    ];
+
+    // 타이틀 병합
+    ws['!merges'] = [{s:{r:0,c:0}, e:{r:0,c:8}}];
+
+    XLSX.utils.book_append_sheet(wb, ws, mLabel);
+  });
+
+  XLSX.writeFile(wb, `JK영업파이프라인_${YEAR}.xlsx`);
+  toast('엑셀 파일을 다운로드했습니다.');
 }
 
 function exportCSV() {
