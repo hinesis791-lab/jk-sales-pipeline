@@ -599,106 +599,77 @@ function clearMember(name) {
 }
 
 function exportExcel() {
-  const YEAR = 2026;
-  const MONTHS = [6,7,8,9,10,11,12];
   const wb = XLSX.utils.book_new();
+  const today = new Date().toLocaleDateString('ko-KR', {year:'numeric',month:'long',day:'numeric'});
 
-  // 헬퍼: 셀 스타일 적용
-  function setCell(ws, addr, v, opts) {
-    if (!ws[addr]) ws[addr] = {};
-    ws[addr].v = v;
-    ws[addr].t = (typeof v === 'number') ? 'n' : 's';
-    if (opts && opts.numFmt) ws[addr].z = opts.numFmt;
-  }
+  MEMBERS.forEach(name => {
+    const rows = getRows(name).filter(r => r.co || r.mid);
+    const aoa = [];
 
-  MONTHS.forEach(month => {
-    const mLabel = `${month}월`;
-    const aoa = []; // array of arrays
-
-    // ── 타이틀 ──────────────────────────────────────────
-    aoa.push([`JK기업영업2팀 영업 파이프라인 — ${YEAR}년 ${mLabel}`]);
+    // ── 타이틀 ───────────────────────────────────────────
+    aoa.push([`${name} 영업 파이프라인`]);
+    aoa.push([`JK기업영업2팀  ·  다운로드 일시: ${today}`]);
     aoa.push([]);
 
-    // ── 인원별 요약 헤더 ─────────────────────────────────
-    aoa.push(['▶ 인원별 현황 요약']);
-    aoa.push(['팀원', '총건수', '견적중', '빌링완료', '채용없음', '보류', '이탈', 'VAT별도 합계(원)', 'VAT포함 합계(원)']);
+    // ── 요약 현황 ────────────────────────────────────────
+    aoa.push(['▶ 현황 요약']);
+    aoa.push(['총건수', '견적중', '빌링완료', '채용없음', '보류', '이탈', 'VAT별도 합계(원)', 'VAT포함 합계(원)']);
 
-    let gTotal=0, gVatIn=0, gVatEx=0;
-    const gSt = {}; STATUSES.forEach(s => { gSt[s]=0; });
-
-    const memberSummaries = [];
-    MEMBERS.forEach(m => {
-      const filtered = getRows(m).filter(r => {
-        if (!r.co && !r.mid) return false;
-        if (!r.dt) return false;
-        const d = new Date(r.dt);
-        return d.getFullYear() === YEAR && d.getMonth()+1 === month;
-      });
-      let mTotal=0, mVatIn=0, mVatEx=0;
-      const mSt = {}; STATUSES.forEach(s => { mSt[s]=0; });
-      filtered.forEach(r => {
-        mTotal++;
-        const vi = parseFloat(String(r.vi||'').replace(/,/g,''))||0;
-        const ve = (vatEx(vi)||0);
-        mVatIn += vi; mVatEx += ve;
-        if (r.st && mSt[r.st]!==undefined) mSt[r.st]++;
-      });
-      gTotal+=mTotal; gVatIn+=mVatIn; gVatEx+=mVatEx;
-      STATUSES.forEach(s => { gSt[s]+=mSt[s]; });
-      aoa.push([m, mTotal, ...STATUSES.map(s=>mSt[s]), mVatEx, mVatIn]);
-      memberSummaries.push({m, filtered});
+    let totVatIn=0, totVatEx=0;
+    const stCnt = {}; STATUSES.forEach(s => { stCnt[s]=0; });
+    rows.forEach(r => {
+      if (r.st && stCnt[r.st]!==undefined) stCnt[r.st]++;
+      const vi = parseFloat(String(r.vi||'').replace(/,/g,''))||0;
+      totVatIn += vi;
+      totVatEx += (vatEx(vi)||0);
     });
-
-    // 합계 행
-    aoa.push(['합계', gTotal, ...STATUSES.map(s=>gSt[s]), gVatEx, gVatIn]);
-    aoa.push([]);
+    aoa.push([rows.length, ...STATUSES.map(s=>stCnt[s]), totVatEx, totVatIn]);
     aoa.push([]);
 
-    // ── 상태별 현황 ──────────────────────────────────────
-    aoa.push(['▶ 상태별 현황']);
+    // ── 상태별 소계 ──────────────────────────────────────
+    aoa.push(['▶ 상태별 소계']);
     aoa.push(['상태', '건수', 'VAT별도 합계(원)', 'VAT포함 합계(원)']);
     STATUSES.forEach(st => {
-      let stCount=0, stVatIn=0, stVatEx=0;
-      memberSummaries.forEach(({filtered}) => {
-        filtered.forEach(r => {
-          if (r.st !== st) return;
-          stCount++;
-          const vi = parseFloat(String(r.vi||'').replace(/,/g,''))||0;
-          stVatIn += vi; stVatEx += (vatEx(vi)||0);
-        });
-      });
-      aoa.push([st, stCount, stVatEx, stVatIn]);
+      const stRows = rows.filter(r => r.st === st);
+      const sVatIn = stRows.reduce((a,r) => a+(parseFloat(String(r.vi||'').replace(/,/g,''))||0),0);
+      const sVatEx = stRows.reduce((a,r) => { const vi=parseFloat(String(r.vi||'').replace(/,/g,''))||0; return a+(vatEx(vi)||0); },0);
+      aoa.push([st, stRows.length, sVatEx, sVatIn]);
     });
-    aoa.push(['합계', gTotal, gVatEx, gVatIn]);
-    aoa.push([]);
+    aoa.push(['합계', rows.length, totVatEx, totVatIn]);
     aoa.push([]);
 
     // ── 상세 데이터 ──────────────────────────────────────
     aoa.push(['▶ 상세 데이터']);
-    aoa.push(['팀원', '번호', '기업명', '메인ID', '견적일', '금액(VAT포함)', '금액(VAT별도)', '상태']);
-    memberSummaries.forEach(({m, filtered}) => {
-      filtered.forEach((r, idx) => {
-        const vi = parseFloat(String(r.vi||'').replace(/,/g,''))||0;
-        aoa.push([m, idx+1, r.co||'', r.mid||'', r.dt||'', vi||0, vatEx(vi)||0, r.st||'']);
-      });
+    aoa.push(['번호', '기업명', '메인ID', '견적일', '금액(VAT포함)', '금액(VAT별도)', '상태']);
+    rows.forEach((r, i) => {
+      const vi = parseFloat(String(r.vi||'').replace(/,/g,''))||0;
+      aoa.push([i+1, r.co||'', r.mid||'', r.dt||'', vi||0, vatEx(vi)||0, r.st||'']);
     });
+    // 빈 행 없으면 안내
+    if (rows.length === 0) aoa.push(['', '(입력된 데이터가 없습니다)', '', '', '', '', '']);
 
-    // 시트 생성
+    // ── 시트 생성 ─────────────────────────────────────────
     const ws = XLSX.utils.aoa_to_sheet(aoa);
 
-    // 컬럼 너비 설정
     ws['!cols'] = [
-      {wch:12},{wch:8},{wch:24},{wch:16},
-      {wch:13},{wch:18},{wch:18},{wch:10},{wch:18}
+      {wch:8},   // 번호
+      {wch:26},  // 기업명
+      {wch:16},  // 메인ID
+      {wch:13},  // 견적일
+      {wch:18},  // VAT포함
+      {wch:18},  // VAT별도
+      {wch:10},  // 상태
+      {wch:18},  // (요약용 여분)
+    ];
+    ws['!merges'] = [
+      {s:{r:0,c:0}, e:{r:0,c:7}},
+      {s:{r:1,c:0}, e:{r:1,c:7}},
     ];
 
-    // 타이틀 병합
-    ws['!merges'] = [{s:{r:0,c:0}, e:{r:0,c:8}}];
-
-    XLSX.utils.book_append_sheet(wb, ws, mLabel);
+    XLSX.utils.book_append_sheet(wb, ws, name);
   });
 
-  XLSX.writeFile(wb, `JK영업파이프라인_${YEAR}.xlsx`);
+  XLSX.writeFile(wb, `JK영업파이프라인_${new Date().toISOString().slice(0,10)}.xlsx`);
   toast('엑셀 파일을 다운로드했습니다.');
 }
 
