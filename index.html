@@ -180,7 +180,7 @@ tfoot tr td { background: #f8faff; font-weight: 700; border-top: 2px solid var(-
 
 <div id="toast"></div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx-style@0.8.13/dist/xlsx.full.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 <script>
@@ -725,71 +725,188 @@ function closeModal() {
 
 function exportExcel() {
   const wb = XLSX.utils.book_new();
-  const today = new Date().toLocaleDateString('ko-KR', {year:'numeric',month:'long',day:'numeric'});
+  const today = new Date().toLocaleDateString('ko-KR',{year:'numeric',month:'long',day:'numeric'});
+
+  // ── 공통 색상 ────────────────────────────────────────────
+  const C = {
+    navy:'1A1A2E', navyLight:'16213E', accent:'4361EE', accentLight:'EEF2FF',
+    white:'FFFFFF', bgAlt:'F8FAFF', border:'D1D5DB', borderDark:'94A3B8',
+    textMuted:'64748B', green:'2DC653', red:'EF233C',
+    ST:{ '견적중':'4361EE','빌링완료':'2DC653','채용없음':'8D99AE','보류':'F8961E','이탈':'EF233C' }
+  };
+
+  // ── 스타일 빌더 ──────────────────────────────────────────
+  const border = (color=C.border) => ({
+    top:{style:'thin',color:{rgb:color}}, bottom:{style:'thin',color:{rgb:color}},
+    left:{style:'thin',color:{rgb:color}}, right:{style:'thin',color:{rgb:color}}
+  });
+  const borderTop = (topColor, color=C.border) => ({
+    top:{style:'medium',color:{rgb:topColor}},
+    bottom:{style:'thin',color:{rgb:color}},
+    left:{style:'thin',color:{rgb:color}}, right:{style:'thin',color:{rgb:color}}
+  });
+  const font = (opts={}) => ({name:'맑은 고딕', sz:opts.sz||10, bold:opts.bold||false, color:{rgb:opts.color||C.navy}, ...opts.extra});
+  const fill = (rgb) => ({patternType:'solid', fgColor:{rgb}});
+  const align = (h='left', v='center', wrap=false) => ({horizontal:h, vertical:v, wrapText:wrap});
+  const NUM_FMT = '#,##0';
+
+  // ── 셀 쓰기 헬퍼 ────────────────────────────────────────
+  function sc(ws, r, c, v, s, z) {
+    const addr = XLSX.utils.encode_cell({r,c});
+    const t = typeof v === 'number' ? 'n' : 's';
+    ws[addr] = {v: v===null||v===undefined?'':v, t, s};
+    if (z) ws[addr].z = z;
+  }
+
+  // 범위 전체 같은 스타일
+  function sRange(ws, r1, c1, r2, c2, s, z) {
+    for(let r=r1;r<=r2;r++) for(let c=c1;c<=c2;c++) {
+      const addr = XLSX.utils.encode_cell({r,c});
+      if(!ws[addr]) ws[addr]={v:'',t:'s'};
+      ws[addr].s = s;
+      if(z) ws[addr].z = z;
+    }
+  }
 
   MEMBERS.forEach(name => {
-    const rows = getRows(name).filter(r => r.co || r.mid);
-    const aoa = [];
+    const dataRows = getRows(name).filter(r => r.co || r.mid);
 
-    // ── 타이틀 ───────────────────────────────────────────
-    aoa.push([`${name} 영업 파이프라인`]);
-    aoa.push([`JK기업영업2팀  ·  다운로드 일시: ${today}`]);
-    aoa.push([]);
-
-    // ── 요약 현황 ────────────────────────────────────────
-    aoa.push(['▶ 현황 요약']);
-    aoa.push(['총건수', '견적중', '빌링완료', '채용없음', '보류', '이탈', 'VAT별도 합계(원)', 'VAT포함 합계(원)']);
-
+    // ── 통계 계산 ────────────────────────────────────────
     let totVatIn=0, totVatEx=0;
-    const stCnt = {}; STATUSES.forEach(s => { stCnt[s]=0; });
-    rows.forEach(r => {
-      if (r.st && stCnt[r.st]!==undefined) stCnt[r.st]++;
-      const vi = parseFloat(String(r.vi||'').replace(/,/g,''))||0;
-      totVatIn += vi;
-      totVatEx += (vatEx(vi)||0);
+    const stCnt={}; STATUSES.forEach(s=>{stCnt[s]=0;});
+    dataRows.forEach(r => {
+      if(r.st && stCnt[r.st]!==undefined) stCnt[r.st]++;
+      const vi=parseFloat(String(r.vi||'').replace(/,/g,''))||0;
+      totVatIn+=vi; totVatEx+=(vatEx(vi)||0);
     });
-    aoa.push([rows.length, ...STATUSES.map(s=>stCnt[s]), totVatEx, totVatIn]);
-    aoa.push([]);
-
-    // ── 상태별 소계 ──────────────────────────────────────
-    aoa.push(['▶ 상태별 소계']);
-    aoa.push(['상태', '건수', 'VAT별도 합계(원)', 'VAT포함 합계(원)']);
-    STATUSES.forEach(st => {
-      const stRows = rows.filter(r => r.st === st);
-      const sVatIn = stRows.reduce((a,r) => a+(parseFloat(String(r.vi||'').replace(/,/g,''))||0),0);
-      const sVatEx = stRows.reduce((a,r) => { const vi=parseFloat(String(r.vi||'').replace(/,/g,''))||0; return a+(vatEx(vi)||0); },0);
-      aoa.push([st, stRows.length, sVatEx, sVatIn]);
+    const stDetail = STATUSES.map(st => {
+      const sr=dataRows.filter(r=>r.st===st);
+      const svi=sr.reduce((a,r)=>a+(parseFloat(String(r.vi||'').replace(/,/g,''))||0),0);
+      return {st, count:sr.length, vatEx:sr.reduce((a,r)=>{const vi=parseFloat(String(r.vi||'').replace(/,/g,''))||0;return a+(vatEx(vi)||0);},0), vatIn:svi};
     });
-    aoa.push(['합계', rows.length, totVatEx, totVatIn]);
-    aoa.push([]);
 
-    // ── 상세 데이터 ──────────────────────────────────────
-    aoa.push(['▶ 상세 데이터']);
-    aoa.push(['번호', '기업명', '메인ID', '견적일', '금액(VAT포함)', '금액(VAT별도)', '상태']);
-    rows.forEach((r, i) => {
-      const vi = parseFloat(String(r.vi||'').replace(/,/g,''))||0;
-      aoa.push([i+1, r.co||'', r.mid||'', r.dt||'', vi||0, vatEx(vi)||0, r.st||'']);
-    });
-    // 빈 행 없으면 안내
-    if (rows.length === 0) aoa.push(['', '(입력된 데이터가 없습니다)', '', '', '', '', '']);
+    // ── AOA (값만) ────────────────────────────────────────
+    // R0: 타이틀  R1: 서브  R2: 공백
+    // R3: 섹션1  R4: 헤더  R5: 데이터
+    // R6: 공백
+    // R7: 섹션2  R8: 헤더  R9~13: 상태  R14: 합계
+    // R15: 공백
+    // R16: 섹션3  R17: 헤더  R18+: 데이터
 
-    // ── 시트 생성 ─────────────────────────────────────────
+    const aoa = [
+      [`${name} 영업 파이프라인`,'','','','','','',''],                          // R0
+      [`JK기업영업2팀   ·   다운로드 일시: ${today}`,'','','','','','',''],      // R1
+      ['','','','','','','',''],                                                  // R2
+      ['현황 요약','','','','','','',''],                                         // R3
+      ['총건수','견적중','빌링완료','채용없음','보류','이탈','VAT별도 합계(원)','VAT포함 합계(원)'], // R4
+      [dataRows.length, ...STATUSES.map(s=>stCnt[s]), totVatEx, totVatIn],       // R5
+      ['','','','','','','',''],                                                  // R6
+      ['상태별 소계','','',''],                                                    // R7
+      ['상태','건수','VAT별도 합계(원)','VAT포함 합계(원)'],                       // R8
+      ...stDetail.map(d=>[d.st, d.count, d.vatEx, d.vatIn]),                     // R9~13
+      ['합계', dataRows.length, totVatEx, totVatIn],                             // R14
+      ['','','','','','',''],                                                     // R15
+      ['상세 데이터','','','','','',''],                                           // R16
+      ['번호','기업명','메인ID','견적일','금액(VAT포함)','금액(VAT별도)','상태'],  // R17
+    ];
+    if(dataRows.length>0) {
+      dataRows.forEach((r,i)=>{
+        const vi=parseFloat(String(r.vi||'').replace(/,/g,''))||0;
+        aoa.push([i+1, r.co||'', r.mid||'', r.dt||'', vi||0, vatEx(vi)||0, r.st||'']);
+      });
+    } else {
+      aoa.push(['','(입력된 데이터가 없습니다)','','','','','']);
+    }
+
     const ws = XLSX.utils.aoa_to_sheet(aoa);
 
-    ws['!cols'] = [
-      {wch:8},   // 번호
-      {wch:26},  // 기업명
-      {wch:16},  // 메인ID
-      {wch:13},  // 견적일
-      {wch:18},  // VAT포함
-      {wch:18},  // VAT별도
-      {wch:10},  // 상태
-      {wch:18},  // (요약용 여분)
-    ];
+    // ── 컬럼 너비 / 행 높이 ──────────────────────────────
+    ws['!cols'] = [{wch:10},{wch:28},{wch:16},{wch:13},{wch:20},{wch:20},{wch:10},{wch:20}];
+    ws['!rows'] = [{hpt:34},{hpt:16},{hpt:6},{hpt:20},{hpt:22},{hpt:20}];
+
+    // ── 병합 ─────────────────────────────────────────────
     ws['!merges'] = [
-      {s:{r:0,c:0}, e:{r:0,c:7}},
-      {s:{r:1,c:0}, e:{r:1,c:7}},
+      {s:{r:0,c:0},e:{r:0,c:7}}, {s:{r:1,c:0},e:{r:1,c:7}},
+      {s:{r:3,c:0},e:{r:3,c:7}}, {s:{r:7,c:0},e:{r:7,c:3}},
+      {s:{r:16,c:0},e:{r:16,c:6}},
     ];
+
+    // ── 스타일 적용 ──────────────────────────────────────
+    // R0 타이틀
+    sRange(ws,0,0,0,7, {fill:fill(C.navy), font:font({sz:14,bold:true,color:C.white}), alignment:align('left','center')});
+    // R1 서브타이틀
+    sRange(ws,1,0,1,7, {fill:fill(C.navyLight), font:font({sz:9,color:'94A3B8'}), alignment:align('left','center')});
+    // R2 공백
+    sRange(ws,2,0,2,7, {fill:fill('F4F6F8')});
+
+    // R3 섹션헤더 - 현황요약
+    sRange(ws,3,0,3,7, {fill:fill(C.accent), font:font({sz:10,bold:true,color:C.white}), alignment:align('left','center'), border:border(C.accent)});
+    // R4 컬럼헤더
+    for(let c=0;c<8;c++) sc(ws,4,c, aoa[4][c], {fill:fill(C.accentLight), font:font({sz:9,bold:true,color:C.accent}), border:border(C.borderDark), alignment:align('center','center',true)});
+    // R5 데이터 (요약 1행)
+    for(let c=0;c<8;c++) {
+      const v = aoa[5][c];
+      const isNum = typeof v === 'number';
+      sc(ws,5,c, v, {fill:fill(C.white), font:font({sz:11,bold:true}), border:border(), alignment:align(isNum?'center':'center','center')}, isNum?NUM_FMT:null);
+    }
+
+    // R6 공백
+    sRange(ws,6,0,6,7, {fill:fill('F4F6F8')});
+
+    // R7 섹션헤더 - 상태별 소계
+    sRange(ws,7,0,7,3, {fill:fill(C.accent), font:font({sz:10,bold:true,color:C.white}), alignment:align('left','center'), border:border(C.accent)});
+    // R8 헤더
+    for(let c=0;c<4;c++) sc(ws,8,c, aoa[8][c], {fill:fill(C.accentLight), font:font({sz:9,bold:true,color:C.accent}), border:border(C.borderDark), alignment:align('center','center')});
+    // R9~13 상태 데이터
+    stDetail.forEach((d,si) => {
+      const r = 9+si;
+      const stRgb = C.ST[d.st]||'8D99AE';
+      const bgAlt = si%2===1 ? C.bgAlt : C.white;
+      // 상태명 칼라
+      sc(ws,r,0,d.st, {fill:fill(stRgb), font:font({sz:10,bold:true,color:C.white}), border:border(stRgb), alignment:align('center','center')});
+      // 건수
+      sc(ws,r,1,d.count, {fill:fill(bgAlt), font:font({sz:10,bold:true}), border:border(), alignment:align('center','center')}, NUM_FMT);
+      // VAT별도
+      const veColor = d.vatEx>=10000000 ? C.red : C.green;
+      sc(ws,r,2,d.vatEx, {fill:fill(bgAlt), font:font({sz:10,bold:true,color:veColor}), border:border(), alignment:align('right','center')}, NUM_FMT);
+      // VAT포함
+      sc(ws,r,3,d.vatIn, {fill:fill(bgAlt), font:font({sz:10}), border:border(), alignment:align('right','center')}, NUM_FMT);
+    });
+    // R14 합계
+    sc(ws,14,0,'합계', {fill:fill(C.accentLight), font:font({sz:10,bold:true,color:C.accent}), border:borderTop(C.accent), alignment:align('center','center')});
+    sc(ws,14,1,dataRows.length, {fill:fill(C.accentLight), font:font({sz:10,bold:true,color:C.accent}), border:borderTop(C.accent), alignment:align('center','center')}, NUM_FMT);
+    const totVeColor = totVatEx>=10000000 ? C.red : C.green;
+    sc(ws,14,2,totVatEx, {fill:fill(C.accentLight), font:font({sz:10,bold:true,color:totVeColor}), border:borderTop(C.accent), alignment:align('right','center')}, NUM_FMT);
+    sc(ws,14,3,totVatIn, {fill:fill(C.accentLight), font:font({sz:10,bold:true}), border:borderTop(C.accent), alignment:align('right','center')}, NUM_FMT);
+
+    // R15 공백
+    sRange(ws,15,0,15,6, {fill:fill('F4F6F8')});
+
+    // R16 섹션헤더 - 상세 데이터
+    sRange(ws,16,0,16,6, {fill:fill(C.accent), font:font({sz:10,bold:true,color:C.white}), alignment:align('left','center'), border:border(C.accent)});
+    // R17 헤더
+    for(let c=0;c<7;c++) sc(ws,17,c, aoa[17][c], {fill:fill(C.accentLight), font:font({sz:9,bold:true,color:C.accent}), border:border(C.borderDark), alignment:align('center','center')});
+
+    // R18+ 상세 데이터 행
+    dataRows.forEach((row,i) => {
+      const r = 18+i;
+      const bg = i%2===1 ? C.bgAlt : C.white;
+      const vi = parseFloat(String(row.vi||'').replace(/,/g,''))||0;
+      const ve = vatEx(vi)||0;
+      const stRgb = C.ST[row.st||''];
+
+      sc(ws,r,0,i+1,       {fill:fill(bg), font:font({sz:10}), border:border(), alignment:align('center','center')});
+      sc(ws,r,1,row.co||'',{fill:fill(bg), font:font({sz:10}), border:border(), alignment:align('left','center')});
+      sc(ws,r,2,row.mid||'',{fill:fill(bg),font:font({sz:10}), border:border(), alignment:align('left','center')});
+      sc(ws,r,3,row.dt||'',{fill:fill(bg), font:font({sz:10}), border:border(), alignment:align('center','center')});
+      sc(ws,r,4,vi||0,     {fill:fill(bg), font:font({sz:10}), border:border(), alignment:align('right','center')}, NUM_FMT);
+      sc(ws,r,5,ve||0,     {fill:fill(bg), font:font({sz:10,bold:true,color:ve>=10000000?C.red:C.green}), border:border(), alignment:align('right','center')}, NUM_FMT);
+      if(stRgb) {
+        sc(ws,r,6,row.st,  {fill:fill(stRgb), font:font({sz:9,bold:true,color:C.white}), border:border(stRgb), alignment:align('center','center')});
+      } else {
+        sc(ws,r,6,row.st||'',{fill:fill(bg), font:font({sz:10}), border:border(), alignment:align('center','center')});
+      }
+    });
 
     XLSX.utils.book_append_sheet(wb, ws, name);
   });
