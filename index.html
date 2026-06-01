@@ -89,6 +89,21 @@ body { font-family: 'Noto Sans KR', 'Malgun Gothic', sans-serif; background: var
 .member-stage-section .stage-card { padding: 10px 13px; }
 .member-stage-section .sc-count { font-size: 1.5rem; }
 
+/* ── Status modal ── */
+.modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:500; display:flex; align-items:center; justify-content:center; padding:20px; animation:fadeIn 0.15s; }
+@keyframes fadeIn { from{opacity:0} to{opacity:1} }
+.modal-box { background:white; border-radius:14px; width:100%; max-width:940px; max-height:86vh; display:flex; flex-direction:column; box-shadow:0 24px 64px rgba(0,0,0,0.25); animation:slideUp 0.18s; }
+@keyframes slideUp { from{transform:translateY(16px);opacity:0} to{transform:none;opacity:1} }
+.modal-header { padding:16px 22px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:flex-start; flex-shrink:0; }
+.modal-title { font-size:1.05rem; font-weight:700; }
+.modal-sub { font-size:0.75rem; color:var(--text-muted); margin-top:3px; }
+.modal-close { background:none; border:none; font-size:1.2rem; cursor:pointer; color:var(--text-muted); line-height:1; padding:2px 6px; border-radius:4px; }
+.modal-close:hover { background:#f1f5f9; color:var(--text); }
+.modal-body { overflow-y:auto; flex:1; }
+.modal-th { padding:9px 14px; text-align:left; font-weight:600; color:var(--text-muted); border-bottom:2px solid var(--border); font-size:0.7rem; text-transform:uppercase; letter-spacing:0.5px; white-space:nowrap; background:#f8faff; }
+.modal-td { padding:8px 14px; border-bottom:1px solid #f1f5f9; font-size:0.82rem; vertical-align:middle; }
+.modal-foot td { padding:10px 14px; font-weight:700; border-top:2px solid var(--border); background:#f8faff; font-size:0.82rem; }
+
 .table-wrap { overflow-x: auto; }
 table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
 thead tr { background: #f8faff; }
@@ -315,7 +330,7 @@ function renderStageCards() {
   document.getElementById('stageGrid').innerHTML = STATUSES.map(st => {
     const c = s.byStatus[st];
     const col = STATUS_COLOR[st].text;
-    return `<div class="stage-card" data-s="${st}">
+    return `<div class="stage-card" data-s="${st}" onclick="showStatusModal('${st}')" style="cursor:pointer">
       <div class="sc-label" style="color:${col}">${st}</div>
       <div class="sc-count">${c.count}<span>건</span></div>
       <div class="sc-amount">VAT별도 ${fmtW(c.vatEx)}</div>
@@ -639,6 +654,73 @@ function checkBackup(name) {
     const btn = document.getElementById('btnRestore');
     if (btn && snap.exists()) btn.classList.add('visible');
   });
+}
+
+function showStatusModal(st) {
+  const col = STATUS_COLOR[st].text;
+  const rows = [];
+  MEMBERS.forEach(m => {
+    getRows(m).forEach(r => {
+      if ((!r.co && !r.mid) || r.st !== st) return;
+      rows.push({member: m, ...r});
+    });
+  });
+
+  const totVatIn = rows.reduce((a,r) => a+(parseFloat(String(r.vi||'').replace(/,/g,''))||0), 0);
+  const totVatEx = rows.reduce((a,r) => { const vi=parseFloat(String(r.vi||'').replace(/,/g,''))||0; return a+(vatEx(vi)||0); }, 0);
+
+  const tbody = rows.length > 0 ? rows.map(r => {
+    const vi = parseFloat(String(r.vi||'').replace(/,/g,''))||0;
+    const ve = vatEx(vi);
+    const idx = MEMBERS.indexOf(r.member);
+    return `<tr>
+      <td class="modal-td"><div style="display:flex;align-items:center;gap:6px">${avt(r.member,idx,22)}<span style="font-weight:600">${r.member}</span></div></td>
+      <td class="modal-td">${esc(r.co)}</td>
+      <td class="modal-td">${esc(r.mid)}</td>
+      <td class="modal-td">${r.dt||'—'}</td>
+      <td class="modal-td" style="text-align:right">${vi?fmt(vi)+'원':'—'}</td>
+      <td class="modal-td" style="text-align:right;font-weight:600;color:${ve>=10000000?'#ef233c':'var(--green)'}">${ve?fmt(ve)+'원':'—'}</td>
+    </tr>`;
+  }).join('') : `<tr><td colspan="6" class="modal-td" style="text-align:center;padding:40px;color:var(--text-muted)">해당 건이 없습니다</td></tr>`;
+
+  const el = document.createElement('div');
+  el.className = 'modal-overlay';
+  el.id = 'statusModal';
+  el.innerHTML = `
+    <div class="modal-box">
+      <div class="modal-header">
+        <div>
+          <div class="modal-title" style="color:${col}">● ${st}&ensp;<span style="color:var(--text);font-size:0.88rem;font-weight:500">${rows.length}건</span></div>
+          <div class="modal-sub">VAT별도 합계 ${fmt(totVatEx)}원 &nbsp;·&nbsp; VAT포함 합계 ${fmt(totVatIn)}원</div>
+        </div>
+        <button class="modal-close" onclick="closeModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <table style="width:100%;border-collapse:collapse">
+          <thead><tr>
+            <th class="modal-th">팀원</th>
+            <th class="modal-th">기업명</th>
+            <th class="modal-th">메인ID</th>
+            <th class="modal-th">견적일</th>
+            <th class="modal-th" style="text-align:right">금액(VAT포함)</th>
+            <th class="modal-th" style="text-align:right">금액(VAT별도)</th>
+          </tr></thead>
+          <tbody>${tbody}</tbody>
+          ${rows.length>0?`<tfoot class="modal-foot"><tr>
+            <td colspan="4">합계</td>
+            <td style="text-align:right">${fmt(totVatIn)}원</td>
+            <td style="text-align:right;color:${totVatEx>=10000000?'#ef233c':'var(--green)'}">${fmt(totVatEx)}원</td>
+          </tr></tfoot>`:''}
+        </table>
+      </div>
+    </div>`;
+  el.addEventListener('click', e => { if (e.target === el) closeModal(); });
+  document.body.appendChild(el);
+}
+
+function closeModal() {
+  const el = document.getElementById('statusModal');
+  if (el) el.remove();
 }
 
 function exportExcel() {
