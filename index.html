@@ -832,8 +832,9 @@ function showStatusModal(st) {
       <td class="modal-td">${r.dt||'—'}</td>
       <td class="modal-td" style="text-align:right">${vi?fmt(vi)+'원':'—'}</td>
       <td class="modal-td" style="text-align:right;font-weight:600;color:${ve>=10000000?'#ef233c':'var(--green)'}">${ve?fmt(ve)+'원':'—'}</td>
+      ${(st==='이탈'||st==='보류')?('<td class="modal-td" style="font-size:0.8rem;color:'+(r.memo?'var(--text)':'var(--text-muted)')+(r.memo?'">'+esc(r.memo):'font-style:italic">—')+'</td>'):''}
     </tr>`;
-  }).join('') : `<tr><td colspan="6" class="modal-td" style="text-align:center;padding:40px;color:var(--text-muted)">해당 건이 없습니다</td></tr>`;
+  }).join('') : `<tr><td colspan="${(st==='이탈'||st==='보류')?7:6}" class="modal-td" style="text-align:center;padding:40px;color:var(--text-muted)">해당 건이 없습니다</td></tr>`;
 
   const el = document.createElement('div');
   el.className = 'modal-overlay';
@@ -856,12 +857,14 @@ function showStatusModal(st) {
             <th class="modal-th">견적일</th>
             <th class="modal-th" style="text-align:right">금액(VAT포함)</th>
             <th class="modal-th" style="text-align:right">금액(VAT별도)</th>
+            ${(st==='이탈'||st==='보류')?'<th class="modal-th">사유 메모</th>':''}
           </tr></thead>
           <tbody>${tbody}</tbody>
           ${rows.length>0?`<tfoot class="modal-foot"><tr>
             <td colspan="4">합계</td>
             <td style="text-align:right">${fmt(totVatIn)}원</td>
             <td style="text-align:right;color:${totVatEx>=10000000?'#ef233c':'var(--green)'}">${fmt(totVatEx)}원</td>
+            ${(st==='이탈'||st==='보류')?'<td></td>':''}
           </tr></tfoot>`:''}
         </table>
       </div>
