@@ -244,7 +244,7 @@ tfoot tr td { background: #f8faff; font-weight: 700; border-top: 2px solid var(-
 
 <div id="toast"></div>
 
-<script src="https://cdn.jsdelivr.net/npm/xlsx-style@0.8.13/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 <script>
@@ -1070,11 +1070,8 @@ function exportExcel() {
     XLSX.utils.book_append_sheet(wb, ws, name);
   });
 
-  const wbout = XLSX.write(wb, {bookType:'xlsx', type:'binary'});
-  const buf = new ArrayBuffer(wbout.length);
-  const view = new Uint8Array(buf);
-  for (let i=0; i<wbout.length; i++) view[i] = wbout.charCodeAt(i) & 0xFF;
-  const blob = new Blob([buf], {type:'application/octet-stream'});
+  const wbout = XLSX.write(wb, {bookType:'xlsx', type:'array'});
+  const blob = new Blob([wbout], {type:'application/octet-stream'});
   const url = URL.createObjectURL(blob);
   const a = Object.assign(document.createElement('a'), {href:url, download:`JK영업파이프라인_${new Date().toISOString().slice(0,10)}.xlsx`});
   document.body.appendChild(a);
