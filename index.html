@@ -1070,7 +1070,16 @@ function exportExcel() {
     XLSX.utils.book_append_sheet(wb, ws, name);
   });
 
-  XLSX.writeFile(wb, `JK영업파이프라인_${new Date().toISOString().slice(0,10)}.xlsx`);
+  const wbout = XLSX.write(wb, {bookType:'xlsx', type:'binary'});
+  const buf = new ArrayBuffer(wbout.length);
+  const view = new Uint8Array(buf);
+  for (let i=0; i<wbout.length; i++) view[i] = wbout.charCodeAt(i) & 0xFF;
+  const blob = new Blob([buf], {type:'application/octet-stream'});
+  const url = URL.createObjectURL(blob);
+  const a = Object.assign(document.createElement('a'), {href:url, download:`JK영업파이프라인_${new Date().toISOString().slice(0,10)}.xlsx`});
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 1000);
   toast('엑셀 파일을 다운로드했습니다.');
 }
 
