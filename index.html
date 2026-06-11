@@ -446,13 +446,17 @@ function renderNav() {
   </div>`;
   MEMBERS.forEach((m, i) => {
     const ms = s.byMember[m];
+    const qs = ms['견적중'];
+    const bs = ms['빌링완료'];
     html += `<div class="nav-item${currentView===m?' active':''}" onclick="showMember('${m}')">
       ${avt(m,i)}
       <div class="nav-info">
         <div class="nav-name">${m}</div>
-        <div class="nav-sub">${ms.total}건 · ${fmtW(ms.vatEx)}</div>
+        <div class="nav-sub" style="line-height:1.6">
+          <span style="color:#4361ee;font-weight:700">견적</span> ${qs.count}건 ${qs.vatEx ? fmtW(qs.vatEx) : '-'}<br>
+          <span style="color:#2dc653;font-weight:700">빌링</span> ${bs.count}건 ${bs.vatEx ? fmtW(bs.vatEx) : '-'}
+        </div>
       </div>
-      ${ms.total>0?`<span class="nav-badge">${ms.total}</span>`:''}
     </div>`;
   });
   document.getElementById('navList').innerHTML = html;
