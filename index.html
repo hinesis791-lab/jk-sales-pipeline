@@ -64,6 +64,10 @@ body { font-family: 'Noto Sans KR', 'Malgun Gothic', sans-serif; background: var
 .nav-item.active::before { content:''; position:absolute; left:0; top:0; bottom:0; width:3px; background:var(--accent); border-radius:0 2px 2px 0; }
 .nav-item.overview-nav { background: #fafbff; border-bottom: 2px solid var(--border); }
 .nav-item.overview-nav.active { background: #eef2ff; }
+.nav-item.kpi-link { border-top: 2px solid var(--border); background: #f0f4ff; }
+.nav-item.kpi-link:hover { background: #e0e8ff; }
+.nav-item.kpi-link .nav-name { color: #4361ee; font-weight: 700; }
+.nav-item.kpi-link .nav-sub { color: #94a3b8; }
 .nav-icon { font-size: 1rem; flex-shrink: 0; }
 .nav-text { font-size: 0.82rem; font-weight: 600; color: var(--accent); }
 .avatar { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.82rem; font-weight: 700; color: white; flex-shrink: 0; }
@@ -459,6 +463,13 @@ function renderNav() {
       </div>
     </div>`;
   });
+  html += `<div class="nav-item kpi-link" onclick="window.open('https://hinesis791-lab.github.io/-/KPI_dashboard_2026-06-15.html','_blank')">
+    <span class="nav-icon">📊</span>
+    <div class="nav-info">
+      <div class="nav-name">KPI종합달성 계산공식</div>
+      <div class="nav-sub">대시보드 바로가기 ↗</div>
+    </div>
+  </div>`;
   document.getElementById('navList').innerHTML = html;
 }
 
