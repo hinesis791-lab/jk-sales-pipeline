@@ -452,6 +452,13 @@ function renderNav() {
       <div class="nav-sub">대시보드 바로가기 ↗</div>
     </div>
   </div>`;
+  html += `<div class="nav-item kpi-link" onclick="window.open('http://172.16.114.53:8081/','_blank')">
+    <span class="nav-icon">📈</span>
+    <div class="nav-info">
+      <div class="nav-name">Sales KPI Dashboard</div>
+      <div class="nav-sub">대시보드 바로가기 ↗</div>
+    </div>
+  </div>`;
   html += `<div class="nav-item overview-nav ${currentView==='dashboard'?'active':''}" onclick="showDashboard()">
     <span class="nav-icon">📋</span><span class="nav-text">전체 현황</span>
   </div>`;
